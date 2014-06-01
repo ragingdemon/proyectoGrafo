@@ -7,8 +7,16 @@ package proyectografo;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
@@ -43,6 +51,8 @@ public class mainWindow extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
         jLabel1.setText("Nombre:");
 
@@ -151,7 +161,7 @@ public class mainWindow extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Agregar Relaciones");
+        jButton2.setText("Crear Relaciones");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
@@ -165,6 +175,20 @@ public class mainWindow extends javax.swing.JFrame {
             }
         });
 
+        jButton6.setText("Cargar Grafo");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+
+        jButton7.setText("Guardar Grafo");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -172,14 +196,20 @@ public class mainWindow extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(63, 63, 63)
-                        .addComponent(jButton1)
-                        .addGap(18, 18, 18)
-                        .addComponent(jButton2))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(150, 150, 150)
-                        .addComponent(jButton4)))
-                .addContainerGap(75, Short.MAX_VALUE))
+                        .addComponent(jButton4))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(63, 63, 63)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton6)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton7))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButton1)
+                                .addGap(18, 18, 18)
+                                .addComponent(jButton2)))))
+                .addContainerGap(87, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,7 +218,11 @@ public class mainWindow extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
-                .addGap(74, 74, 74)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton6)
+                    .addComponent(jButton7))
+                .addGap(40, 40, 40)
                 .addComponent(jButton4)
                 .addContainerGap(80, Short.MAX_VALUE))
         );
@@ -218,11 +252,11 @@ public class mainWindow extends javax.swing.JFrame {
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
         // agregar relaciones:
-        if (cbPersona1.getSelectedItem().equals(cbPersona2.getSelectedItem()) ) {
+        if (cbPersona1.getSelectedItem().equals(cbPersona2.getSelectedItem())) {
             JOptionPane.showMessageDialog(this, "no se puede crear relaciones con la misma persona");
             return;
         }
-        
+
         if (!grafo.addEdge(new Cadena(cbRelacion.getSelectedItem().toString()),
                 (Persona) cbPersona1.getSelectedItem(),
                 (Persona) cbPersona2.getSelectedItem())) {
@@ -236,19 +270,65 @@ public class mainWindow extends javax.swing.JFrame {
         // abrir ventana de relaciones:
         if (grafo.getVertexCount() > 1) {
             ArrayList<Persona> personas = new ArrayList(grafo.getVertices());
-            
+
             cbPersona1.removeAllItems();
             cbPersona2.removeAllItems();
-            
+
             for (Persona persona : personas) {
                 cbPersona1.addItem(persona);
                 cbPersona2.addItem(persona);
             }
-            
+
             jDialog2.pack();
             jDialog2.setVisible(true);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // Cargar grafo:
+
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // Guardar grafo:
+        JFileChooser fileChooser = new JFileChooser("./");
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("Archivos de grafos", "grf");
+        fileChooser.setFileFilter(filtro);
+        int opcion = fileChooser.showSaveDialog(this);// escoje directorio y nombre del  archivo
+        if (opcion == JFileChooser.APPROVE_OPTION) {
+            String path = fileChooser.getSelectedFile().getAbsolutePath();
+            File archivo;
+            if (!path.endsWith(".grf")) {
+                archivo = new File(path + ".grf"); // agrega extension
+            }else{
+                archivo = new File(path); 
+            }
+            FileOutputStream salida = null;
+            ObjectOutputStream obj = null;
+            try {
+                salida = new FileOutputStream(archivo);
+                obj = new ObjectOutputStream(salida);
+                obj.writeObject(grafo);
+
+                obj.flush();
+
+            } catch (Exception ext) {
+                JOptionPane.showMessageDialog(this, "Error al guardar el archivo ", "Error", JOptionPane.ERROR_MESSAGE);
+                ext.printStackTrace();
+            } finally {
+                try {
+                    if (obj != null) {
+                        obj.close();
+                    }
+                    if (salida != null) {
+                        salida.close();
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(mainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }
+    }//GEN-LAST:event_jButton7ActionPerformed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -291,6 +371,8 @@ public class mainWindow extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JDialog jDialog2;
     private javax.swing.JLabel jLabel1;
