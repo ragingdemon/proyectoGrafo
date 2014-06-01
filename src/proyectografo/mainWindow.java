@@ -7,9 +7,12 @@ package proyectografo;
 
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.UndirectedSparseGraph;
+import java.io.EOFException;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -286,6 +289,14 @@ public class mainWindow extends javax.swing.JFrame {
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
         // Cargar grafo:
+        JFileChooser fileChooser = new JFileChooser("./");
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("Archivos de grafos", "grf");
+        fileChooser.setFileFilter(filtro);
+        int opcion = fileChooser.showOpenDialog(this);
+        if (opcion == JFileChooser.APPROVE_OPTION) {
+            String file = fileChooser.getSelectedFile().getAbsolutePath();
+            cargarPersonas(file);
+        }
 
     }//GEN-LAST:event_jButton6ActionPerformed
 
@@ -300,8 +311,8 @@ public class mainWindow extends javax.swing.JFrame {
             File archivo;
             if (!path.endsWith(".grf")) {
                 archivo = new File(path + ".grf"); // agrega extension
-            }else{
-                archivo = new File(path); 
+            } else {
+                archivo = new File(path);
             }
             FileOutputStream salida = null;
             ObjectOutputStream obj = null;
@@ -361,7 +372,6 @@ public class mainWindow extends javax.swing.JFrame {
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox cbPersona1;
     private javax.swing.JComboBox cbPersona2;
@@ -382,4 +392,29 @@ public class mainWindow extends javax.swing.JFrame {
     private javax.swing.JTextField nombreJtext;
     // End of variables declaration//GEN-END:variables
     private Graph<Persona, Cadena> grafo;
+
+    public void cargarPersonas(String path) {
+        File archivo = null;
+        try {
+            archivo = new File(path);
+            if (archivo.exists()) {
+                FileInputStream entrada = new FileInputStream(archivo);
+                ObjectInputStream objeto = new ObjectInputStream(entrada);
+                Graph<Persona, Cadena> temp;
+
+                try {
+                    while ((temp = (Graph) objeto.readObject()) != null) {
+                        grafo = temp;
+                    }
+                } catch (EOFException e) {
+                    //final
+                } finally {
+                    entrada.close();
+                    objeto.close();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
