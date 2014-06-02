@@ -11,8 +11,10 @@ import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
 import edu.uci.ics.jung.visualization.renderers.EdgeLabelRenderer;
 import edu.uci.ics.jung.visualization.renderers.Renderer.VertexLabel.Position;
 import edu.uci.ics.jung.visualization.renderers.VertexLabelRenderer;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
+import java.awt.Paint;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -20,24 +22,26 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import org.apache.commons.collections15.Transformer;
 
 public class Grafo extends javax.swing.JFrame {
 
-    private Graph<Persona, Cadena> grafo;
+    private final Graph<Persona, Cadena> grafo;
+    private final VisualizationViewer<Persona, Cadena> vv;
 
     public Grafo(Graph<Persona, Cadena> grafo, String title) throws HeadlessException {
         super(title);
         this.grafo = grafo;
         //Layout del grafo
         Layout<Persona, Cadena> layout = new CircleLayout(grafo);
-        layout.setSize(new Dimension(300, 300));
+        layout.setSize(new Dimension(600, 600));
 //        VisualizationViewer<V,E> el objeto que muestra el grafo
-        VisualizationViewer<Persona, Cadena> vv = new VisualizationViewer(layout);
+        vv = new VisualizationViewer(layout);
 
-        vv.setPreferredSize(new Dimension(400, 350));
+        vv.setPreferredSize(new Dimension(600, 600));
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());//labels para los vertices
         vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());//labels para las aristas
-        vv.getRenderer().getVertexLabelRenderer().setPosition(Position.CNTR);//posicion de las labels de los vertices
+        vv.getRenderer().getVertexLabelRenderer().setPosition(Position.N);//posicion de las labels de los vertices
         //añadir eventos del mouse al grafo
         DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
         gm.setMode(ModalGraphMouse.Mode.TRANSFORMING);
@@ -60,8 +64,8 @@ public class Grafo extends javax.swing.JFrame {
         });
 
         getContentPane().add(vv, java.awt.BorderLayout.CENTER);
-        getContentPane().add(button1, java.awt.BorderLayout.PAGE_END);
-        getContentPane().add(button2, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(button1, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(button2, java.awt.BorderLayout.PAGE_END);
     }
 
     private void importaciaAristas(ActionEvent evt) {
@@ -83,7 +87,7 @@ public class Grafo extends javax.swing.JFrame {
             }
         }
         if (edgeCount != 0) {
-            System.out.println("los vértices más importantes son: " + resultado);
+            cambiarColor(resultado);
         }
     }
 
@@ -114,8 +118,6 @@ public class Grafo extends javax.swing.JFrame {
                 totalDistanceMap.put(persona, totalDistancePersona);
             }
         }
-        System.out.println(totalDistanceMap);
-
         for (Persona persona : personas) {
             try {
                 if (totalDistanceMap.get(persona) == minDistance) {
@@ -124,6 +126,21 @@ public class Grafo extends javax.swing.JFrame {
             } catch (Exception e) {
             }
         }
-        System.out.println("los vértices más importantes son: " + resultado);
+        if (resultado.size() > 0) {
+            cambiarColor(resultado);
+        }
+    }
+
+    private void cambiarColor(ArrayList<Persona> resultado) {
+        Transformer<Persona, Paint> vertexColor = new Transformer<Persona, Paint>() {
+            public Paint transform(Persona i) {
+                if (resultado.contains(i)) {
+                    return Color.GREEN;
+                }
+                return Color.RED;
+            }
+        };
+        vv.getRenderContext().setVertexFillPaintTransformer(vertexColor);
+        repaint();
     }
 }
