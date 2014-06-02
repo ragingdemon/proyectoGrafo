@@ -1,7 +1,6 @@
 package proyectografo;
 
-import edu.uci.ics.jung.algorithms.layout.CircleLayout;
-import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.algorithms.shortestpath.DijkstraShortestPath;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -33,14 +32,14 @@ public class Grafo extends javax.swing.JFrame {
         super(title);
         this.grafo = grafo;
         //Layout del grafo
-        Layout<Persona, Cadena> layout = new CircleLayout(grafo);
+        Layout<Persona, Cadena> layout = new ISOMLayout<>(grafo);
         layout.setSize(new Dimension(600, 600));
 //        VisualizationViewer<V,E> el objeto que muestra el grafo
         vv = new VisualizationViewer(layout);
 
         vv.setPreferredSize(new Dimension(600, 600));
         vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());//labels para los vertices
-        vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());//labels para las aristas
+        //vv.getRenderContext().setEdgeLabelTransformer(new ToStringLabeller());//labels para las aristas
         vv.getRenderer().getVertexLabelRenderer().setPosition(Position.N);//posicion de las labels de los vertices
         //añadir eventos del mouse al grafo
         DefaultModalGraphMouse gm = new DefaultModalGraphMouse();
@@ -131,7 +130,7 @@ public class Grafo extends javax.swing.JFrame {
         }
     }
 
-    private void cambiarColor(ArrayList<Persona> resultado) {
+    private void cambiarColor(final ArrayList<Persona> resultado) {
         Transformer<Persona, Paint> vertexColor = new Transformer<Persona, Paint>() {
             public Paint transform(Persona i) {
                 if (resultado.contains(i)) {
